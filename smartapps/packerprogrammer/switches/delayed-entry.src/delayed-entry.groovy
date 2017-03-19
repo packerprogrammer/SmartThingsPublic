@@ -38,10 +38,10 @@ definition(
 preferences {
 	section("Setup Entry Delay"){
 		input "contactMaster", "capability.contactSensor", title: "Master Contact Sensor"
-        input "switches", "capability.switch", title: "Switch to Control", multiple: true
-        input "delayOn", "number", title: "Seconds to Delay On"
+        input "switches", "capability.switch", title: "Switch to Control", multiple: false
+        input "delayOn", "number", title: "Seconds to Delay On", defaultValue: 120
         input "autoOff", "bool", title: "Auto Off?"
-        input "delayOff", "number", title: "Seconds to Delay Off"
+        input "delayOff", "number", title: "Seconds to Delay Off",defaultValue: 1
 	}
 	
     
