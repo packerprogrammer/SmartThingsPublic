@@ -18,7 +18,7 @@
  *  go off immediately, you can set yourself up a reminder to disarm the alarm when you open the door in away mode. That way you have sometime to keep that siren
  *  from waking the neighbors.
  *
- *  Author: Garrett Hensley
+ *  Author: Garrett Hensley (packerprogrammer)
  */
 
 definition(
