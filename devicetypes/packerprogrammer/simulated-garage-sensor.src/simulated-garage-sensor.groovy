@@ -18,8 +18,11 @@ metadata {
         capability "Door Control"
                 capability "Actuator"
         capability "Light"
-        capability "Switch"	
-        
+        //capability "Switch"	
+        preferences {
+    	input name: "delay", type: "number", title: "Delay Time", description: "Delay in Seconds", range:"0..999", required: true,
+        	displayDuringSetup: true
+    	}
         //attribute "DoorState", "string", ["open", "closed", "OPEN DELAY", "CLOSE DELAY"]
 	}
 
@@ -48,11 +51,11 @@ metadata {
 	}
 }
 def on() {
-	log.trace "on was called"
+	log.trace "ON was sent"
     // if the current state is open, change the state to close delay. 
     // I don't want to do this if the close command is still timing
     def doorState = device.currentState("door").getValue()
-    log.trace doorState
+    log.debug "current state is " + doorState
     if (doorState == "CLOSED") {
     	sendEvent(name: "door", value: "OPEN DELAY")
     }
@@ -60,10 +63,10 @@ def on() {
 }
 
 def off() {
-	log.trace "off was called"
+	log.trace "OFF was sent"
     // gets the user-defined label for this device
 	def doorState = device.currentState("door").getValue()
-    log.trace doorState
+    log.debug "current state is " + doorState
     // if the current state is open, change the state to close delay. 
     // I don't want to do this if the open command is still timing
     if (doorState == "OPEN") {
@@ -74,13 +77,13 @@ def off() {
     }
 }
 def open() {
-	log.trace "open was called"
+	log.trace "OPEN command sent"
 	sendEvent(name: "door", value: "OPEN DELAY")
     runIn(5, finishOpening)
 }
 
 def close() {
-	log.trace "close was called"
+	log.debug "CLOSE command sent"
     sendEvent(name: "door", value: "CLOSE DELAY")
 	runIn(5, finishClosing)
 }
@@ -91,13 +94,15 @@ def parse(String description) {
 def finishOpening() {
     sendEvent(name: "door", value: "OPEN")
     sendEvent(name: "contact", value: "open")
+    log.trace "Contact Open"
 }
 
 def finishClosing() {
     sendEvent(name: "door", value: "CLOSED")
     sendEvent(name: "contact", value: "closed")
+    log.trace "Contact Closed"
 }
 def checkState() {
-	log.trace "check state"
+	log.debug "checking state"
 	runIn(1,off)
 }

@@ -16,11 +16,8 @@ metadata {
 		capability "Contact Sensor"
 		capability "Sensor"
                 capability "Actuator"
-        capability "Light"
-        capability "Switch"
-        command "open"
-		command "close"        
-
+        capability "Switch"    
+		
 		
 	}
 
@@ -33,29 +30,23 @@ metadata {
 		standardTile("contact", "device.contact", width: 2, height: 2) {
 			state "open", label: '${name}', icon: "st.contact.contact.open", backgroundColor: "#e86d13"
 			state "closed", label: '${name}', icon: "st.contact.contact.closed", backgroundColor: "#00A0DC"
+            state "timing", label: '${name}', icon: "st.Health & Wellness.health7", backgroundColor: "#00A0DC"
+		}
+        standardTile("close", "device.switch", inactiveLabel: false, decoration: "flat") {
+			state "default", label:'close', action:"switch.off"
 		}
 
 		main "contact"
-		details "contact"
+		details "contact","close"
 	}
 }
 def on() {
     
+    log.trace "ON was sent"
     sendEvent(name: "contact", value: "open")
 }
 
 def off() {
-    
     sendEvent(name: "contact", value: "closed")
 }
 
-// Parse incoming device messages to generate events
-def parse(String description) {
-	def resMap
-	if (description.startsWith("zone")) {
-		resMap = createEvent(name: "contact", value: zigbee.parseZoneStatus(description).isAlarm1Set() ? "open" : "closed")
-	}
-	
-	log.debug "Parse returned $resMap"
-	return resMap
-}
