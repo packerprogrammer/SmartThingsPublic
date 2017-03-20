@@ -39,10 +39,17 @@ preferences {
 	section("Setup Entry Delay"){
 		input "contactMaster", "capability.contactSensor", title: "Master Contact Sensor"
         input "switches", "capability.switch", title: "Switch to Control", multiple: false
-        input "delayOn", "number", title: "Seconds to Delay On", defaultValue: 120
-        input "autoOff", "bool", title: "Auto Off?"
-        input "delayOff", "number", title: "Seconds to Delay Off",defaultValue: 1
-	}
+        input "onDelay", "bool", title: "Delay On?", defaultValue: false, required: false 
+        input "delayOn", "number", title: "Seconds to Delay On", defaultValue: 120, required: false
+    }
+    section(hideable:true, hidden:true, title:"(optional) Auto Off Settings") {
+    	input "autoOff", "bool", title: "Auto Off?", defaultValue: false, required: false
+        input "delayOff", "number", title: "Seconds to Delay Off",defaultValue: 1, required: false, hideWhenFalse:"autoOff"	
+    }
+    
+    	
+    
+        
 	
     
     
