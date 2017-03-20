@@ -39,14 +39,38 @@ metadata {
 		main "contact"
 		details "contact","close"
 	}
+    preferences {
+    	input name: "autoReset", type: "bool", title: "Auto Reset?", description: "Force Sensor to Auto Reset to Closed", required: false, defaultValue: false	
+        input name: "resetDelay", type: "number", title: "Reset Delay", description: "Number of Seconds to Hold Open", required: false, defaultValue: 1
+        input name: "delayOpen", type: "bool", title: "Delay Open?", description: "Delays Opening of Contact", required: false, defaultValue: false	
+        input name: "openDelay", type: "number", title: "Open Delay", description: "Number of Seconds to Delay Open", required: false, defaultValue: 120 
+        
+	}
 }
 def on() {
     
-    log.trace "ON was sent"
-    sendEvent(name: "contact", value: "open")
+    log.debug "ON was sent"
+    if (delayOpen == true) {
+    	log.debug "Timing"
+        sendEvent(name: "contact", value: "timing")
+        runIn(openDelay, openContact)
+    }
+    else {
+    	openContact
+    }
 }
 
 def off() {
+	log.debug "OFF was sent"
     sendEvent(name: "contact", value: "closed")
+    log.debug "contact closed"
 }
 
+def openContact() {
+	
+    sendEvent(name: "contact", value: "open")
+    log.debug "contact opened"
+    if (autoReset == true) {
+    	runIn(resetDelay + 1, off)
+    }
+}
