@@ -18,51 +18,98 @@
  *  go off immediately, you can set yourself up a reminder to disarm the alarm when you open the door in away mode. That way you have sometime to keep that siren
  *  from waking the neighbors.
  *
- *  Author: Garrett Hensley
+ *  Author: Garrett Hensley (packerprogrammer)
  */
 
 definition(
-    name: "Delayed Entry",
+    name: "${appName()}",
     namespace: "packerprogrammer",
     author: "Garrett Hensley",
-    description: "When an input device is activated (i.e. contact open) another switch is turned on after a pre-defined delay (typically a virtual switch). It can be turned off" +
+    description: "When an input device is activated (i.e. contact open) another switch is turned on after a pre-defined delay (typically a virtual switch). It can be turned off " +
     				"automatically as well.",
     category: "Convenience",
-    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Meta/temp_thermo-switch.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Meta/temp_thermo-switch@2x.png"
+    singleInstance: true,
+    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
+    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
+    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png"
 )
 
 preferences {
-	section("Contact Sensor to monitor..."){
-		input "contactMaster", "capability.contactSensor", title: "Contact Sensor"
-	}
-	section("Turn on switch..."){
-		input "switches", "capability.switch", multiple: true
-	}
-    section("Delay to turn on..."){
-		input "delayOn", "number", title: "Seconds?"
-	}
-    section("Auto off?..."){
-		input "autoOff", "bool", title: "Yes/No"
-	}
-    section("Delay to turn off..."){
-		input "delayOff", "number", title: "Seconds?"
-	}
-    
-    
+	page(name: "startPage")
+    page(name: "parentPage")
+    page(name: "childStartPage")
 }
+	
+    
+def startPage() {
+    if (parent) {
+        childStartPage()
+    } else {
+        parentPage()
+    }
+} 	
+    
+    
+def parentPage() {
+	return dynamicPage(name: "parentPage", title: "Delayed Entry Routines", nextPage: "", install: false, uninstall: true) {
+        section() {
+            app(name: "childApps", appName: appName(), namespace: "packerprogrammer", title: "New Delayed Entry", multiple: true)
+        }
+    }
+}
+def childStartPage() {
+	return dynamicPage(name: "childStartPage", title: "Create Delayed Entry", install: true, uninstall: false) { 
+    	section("Setup Entry Delay"){
+			input "contactMaster", "capability.contactSensor", title: "Master Contact Sensor"
+        	input "switches", "capability.switch", title: "Switch to Control", multiple: false
+        	input "onDelay", "bool", title: "Delay On?", defaultValue: false, required: false 
+        	input "delayOn", "number", title: "Seconds to Delay On", defaultValue: 120, required: false
+    	}
+    	section(hideable:true, hidden:true, title:"(optional) Auto Off Settings") {
+    		input "autoOff", "bool", title: "Auto Off?", defaultValue: false, required: false
+        	input "delayOff", "number", title: "Seconds to Delay Off",defaultValue: 1, required: false, hideWhenFalse:"autoOff"	
+    	}
+         section("Setting") {
+        	label(title: "Assign a name", required: false)
+        }
+    }
+}
+        
+	
+    
+private def appName() { return "${parent ? "The Child" : "Delayed Entry"}" }
 
 def installed() {
-	subscribe(contactMaster, "contact", contactHandler)
-    switches.off()
-    log.debug "installed"
+	log.debug "Begin Installed."
+	initialization()     	
+    log.debug "End Installed"
 }
 
 def updated() {
+	log.debug "Begin Updated."
 	unsubscribe()
+    initialization()
+    log.debug "End Updated."
+}
+
+def initialization() {
+	log.debug "parent = " + parent
+    if(parent) { 
+    	initChild() 
+    } else {
+    	initParent() 
+    } 
+}
+
+
+def initParent() {
+	log.debug "Init Parent."
+}
+
+def initChild() {
+	log.debug "Init Child."
 	subscribe(contactMaster, "contact", contactHandler)
     switches.off()
-    log.debug "refresh"
 }
 
 def contactHandler(evt) {
