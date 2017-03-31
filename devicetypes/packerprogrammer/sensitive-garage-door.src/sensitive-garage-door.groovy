@@ -37,6 +37,7 @@ metadata {
 		capability "Refresh"
 		capability "Temperature Measurement"
 		capability "Health Check"
+        
 
 		command "enrollResponse"
 		fingerprint inClusters: "0000,0001,0003,0402,0500,0020,0B05,FC02", outClusters: "0019", manufacturer: "CentraLite", model: "3320"
@@ -118,10 +119,13 @@ metadata {
 		standardTile("refresh", "device.refresh", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
 			state "default", action: "refresh.refresh", icon: "st.secondary.refresh"
 		}
+        standardTile("configure", "device.configure", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
+			state "default", action: "configuration.configure", icon: "st.secondary.configure"
+		}
 
 
 		main(["status", "acceleration", "temperature"])
-		details(["status", "acceleration", "temperature", "battery", "refresh"])
+		details(["status", "acceleration", "temperature", "battery", "refresh", "configure"])
 	}
 }
 
@@ -199,7 +203,7 @@ private List<Map> parseAxis(List<Map> attrData) {
 	def x = hexToSignedInt(attrData.find { it.attrInt == 0x0012 }?.value)
 	def y = hexToSignedInt(attrData.find { it.attrInt == 0x0013 }?.value)
 	def z = hexToSignedInt(attrData.find { it.attrInt == 0x0014 }?.value)
-
+	log.debug "previous value -- $state.baseValue"
 	def xyzResults = [:]
 	if (device.getDataValue("manufacturer") == "SmartThings") {
 		// This mapping matches the current behavior of the Device Handler for the Centralite sensors
@@ -213,7 +217,11 @@ private List<Map> parseAxis(List<Map> attrData) {
 		xyzResults.y = x
 		xyzResults.z = y
 	}
-
+    def absZ = xyzResults.z.abs()
+    def baseZ = state.baseValue.abs()
+    state.baseValue = absZ < baseZ ? absZ : baseZ
+	
+    
 	log.debug "parseAxis -- ${xyzResults}"
 
 	if (garageSensor == "Yes")

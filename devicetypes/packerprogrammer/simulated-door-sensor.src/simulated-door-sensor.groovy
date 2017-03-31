@@ -17,6 +17,7 @@ metadata {
 		capability "Sensor"
                 capability "Actuator"
         capability "Switch"    
+        command "timing"
 		
 		
 	}
@@ -56,21 +57,27 @@ def on() {
         runIn(openDelay, openContact)
     }
     else {
-    	openContact
+    	log.debug "Open Contact Without Delay"
+    	openContact()
     }
 }
 
 def off() {
 	log.debug "OFF was sent"
     sendEvent(name: "contact", value: "closed")
-    log.debug "contact closed"
+    log.debug "Contact is closed"
 }
 
+def timing() {
+    log.debug "Timing was sent"
+    sendEvent(name: "contact", value: "timing")
+}
 def openContact() {
 	
     sendEvent(name: "contact", value: "open")
-    log.debug "contact opened"
+    log.debug "Contact is open"
     if (autoReset == true) {
+    	log.debug "Performing Auto Reset"
     	runIn(resetDelay + 1, off)
     }
 }
