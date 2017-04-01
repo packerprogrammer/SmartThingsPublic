@@ -130,6 +130,7 @@ metadata {
 }
 
 def parse(String description) {
+	//log.debug "$description"
 	def maps = []
 	maps << zigbee.getEvent(description)
 	if (!maps[0]) {
@@ -176,6 +177,7 @@ def parse(String description) {
 
 private List<Map> handleAcceleration(descMap) {
 	def result = []
+    //log.debug "$descMap"
 	if (descMap.clusterInt == 0xFC02 && descMap.attrInt == 0x0010) {
 		def value = descMap.value == "01" ? "active" : "inactive"
 		log.debug "Acceleration $value"
@@ -203,7 +205,7 @@ private List<Map> parseAxis(List<Map> attrData) {
 	def x = hexToSignedInt(attrData.find { it.attrInt == 0x0012 }?.value)
 	def y = hexToSignedInt(attrData.find { it.attrInt == 0x0013 }?.value)
 	def z = hexToSignedInt(attrData.find { it.attrInt == 0x0014 }?.value)
-	log.debug "previous base value -- $state.baseValue"
+	
 	def xyzResults = [:]
 	if (device.getDataValue("manufacturer") == "SmartThings") {
 		// This mapping matches the current behavior of the Device Handler for the Centralite sensors
@@ -217,11 +219,13 @@ private List<Map> parseAxis(List<Map> attrData) {
 		xyzResults.y = x
 		xyzResults.z = y
 	}
-    def absZ = xyzResults.z.abs()
-    def baseZ = state.baseValue.abs()
-    state.baseValue = absZ < baseZ ? absZ : baseZ
-	log.debug "current base value -- $state.baseValue"
-    
+    if (device.latestValue("status") == "garage-closed") {
+    	log.debug "previous base value -- $state.baseValue"
+    	def absZ = xyzResults.z.abs()
+    	def baseZ = state.baseValue.abs()
+    	state.baseValue = absZ < baseZ ? absZ : baseZ
+		log.debug "current base value -- $state.baseValue"
+    }
 	log.debug "parseAxis -- ${xyzResults}"
 
 	if (garageSensor == "Yes")
@@ -302,9 +306,11 @@ List<Map> garageEvent(zValue) {
 	if (absValue > state.baseValue) {
 		contactValue = 'closed'
 		garageValue = 'garage-closed'
+        log.debug "garage is closed"
 	} else if (absValue < (state.baseValue - 20)) {
 		contactValue = 'open'
 		garageValue = 'garage-open'
+        log.debug "garage is open"
 	}
 	if (contactValue != null) {
 		def descriptionText = contactValue == 'open' ? '{{ device.displayName }} was opened' : '{{ device.displayName }} was closed'
@@ -339,7 +345,7 @@ def configure() {
 
 	log.debug "Configuring Reporting"
 	def configCmds = []
-
+	state.baseValue = 9999
 	if (device.getDataValue("manufacturer") == "SmartThings") {
 		log.debug "Refreshing Values for manufacturer: SmartThings "
 		/* These values of Motion Threshold Multiplier(0x01) and Motion Threshold (0x0276)
