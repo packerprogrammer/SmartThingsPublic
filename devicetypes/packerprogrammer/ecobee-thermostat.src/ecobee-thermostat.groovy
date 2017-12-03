@@ -16,7 +16,7 @@
  *	Date: 2013-06-13
  */
 metadata {
-	definition (name: "Ecobee Thermostat", namespace: "smartthings", author: "SmartThings") {
+	definition (name: "Ecobee Thermostat", namespace: "packerprogrammer", author: "Garrett Hensley") {
 		capability "Actuator"
 		capability "Thermostat"
 		capability "Temperature Measurement"
@@ -144,6 +144,11 @@ def parse(String description) {
 
 def refresh() {
 	log.debug "refresh called"
+    
+    
+    
+    
+    
 	poll()
 	log.debug "refresh ended"
 }
@@ -165,7 +170,7 @@ def generateEvent(Map results) {
 						 handlerName: name]
 
 			if (name=="temperature" || name=="heatingSetpoint" || name=="coolingSetpoint" ) {
-				def sendValue =  location.temperatureScale == "C"? roundC(convertFtoC(value.toDouble())) : value.toInteger()
+				def sendValue =  location.temperatureScale == "C"? roundC(convertFtoC(value.toDouble())) : value
 				isChange = isTemperatureStateChange(device, name, value.toString())
 				isDisplayed = isChange
 				event << [value: sendValue, unit: temperatureScale, isStateChange: isChange, displayed: isDisplayed]

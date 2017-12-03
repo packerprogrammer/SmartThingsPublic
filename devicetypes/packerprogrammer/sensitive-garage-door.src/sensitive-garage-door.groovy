@@ -138,6 +138,7 @@ def parse(String description) {
 			maps += parseIasMessage(description)
 		} else {
 			Map descMap = zigbee.parseDescriptionAsMap(description)
+            log.debug descMap
 			if (descMap?.clusterInt == 0x0001 && descMap.commandInt != 0x07 && descMap?.value) {
 				maps << getBatteryResult(Integer.parseInt(descMap.value, 16))
 			} else if (descMap?.clusterInt == zigbee.TEMPERATURE_MEASUREMENT_CLUSTER && descMap.commandInt == 0x07) {
@@ -150,9 +151,10 @@ def parse(String description) {
 			} else {
 
 				maps += handleAcceleration(descMap)
+                
 			}
 		}
-	} else if (maps[0].name == "temperature") {
+	} else if (maps[0].name == "temperature") {pa
 		def map = maps[0]
 		if (tempOffset) {
 			map.value = (int) map.value + (int) tempOffset
@@ -218,6 +220,7 @@ private List<Map> parseAxis(List<Map> attrData) {
 		xyzResults.z = y
 	}
     def absZ = xyzResults.z.abs()
+    state.baseValue = 1
     def baseZ = state.baseValue.abs()
     state.baseValue = absZ < baseZ ? absZ : baseZ
 	
@@ -300,9 +303,11 @@ List<Map> garageEvent(zValue) {
 	def garageValue = null
     def debounce = null
 	if (absValue > 900) {
+        log.debug 'closed'
 		contactValue = 'closed'
 		garageValue = 'garage-closed'
 	} else if (absValue < 800) {
+    log.debug 'open'
 		contactValue = 'open'
 		garageValue = 'garage-open'
 	}
@@ -389,7 +394,9 @@ def updated() {
 }
 
 private hexToSignedInt(hexVal) {
+	log.debug "raw hex -> $hexVal"
 	def unsignedVal = hexToInt(hexVal)
+    log.debug "integer value -> $unsignedVal"
 	unsignedVal > 32767 ? unsignedVal - 65536 : unsignedVal
 }
 
