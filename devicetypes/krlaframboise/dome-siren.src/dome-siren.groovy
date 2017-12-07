@@ -8,7 +8,7 @@
  *  URL to documentation:  https://community.smartthings.com/t/release-dome-siren-official/75499?u=krlaframboise
  *    
  *
- *  Changelog:
+ *  Changelog
  *
  *    1.2.1 (12/02/2017)
  *    	- Fixed bug with siren play until depleted setting.
