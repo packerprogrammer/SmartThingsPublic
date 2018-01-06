@@ -1512,34 +1512,43 @@ def codeEntryHandler(evt) {
   }
 }
 def sendArmCommand() {
+  def armMessage = "System Armed Away."
   log.debug "Sending Arm Command."
   if (keypadstatus) {
     keypad?.each() { it.acknowledgeArmRequest(3) }
   }
   sendSHMEvent("away")
   execRoutine("away")
+  send(armMessage)
+  
 }
 def sendDisarmCommand() {
+  def armMessage = "System Disarmed."	
   log.debug "Sending Disarm Command."
   if (keypadstatus) {
     keypad?.each() { it.acknowledgeArmRequest(0) }
   }
   sendSHMEvent("off")
   execRoutine("off")
+  send(armMessage)
 }
 def sendStayCommand() {
+  def armMessage = "System Armed Stay."	
   log.debug "Sending Stay Command."
   if (keypadstatus) {
     keypad?.each() { it.acknowledgeArmRequest(1) }
   }
   sendSHMEvent("stay")
   execRoutine("stay")
+  send(armMessage)
 }
 def sendNightCommand() {
+  def armMessage = "System Armed Night."	
   log.debug "Sending Night Command."
   if (keypadstatus) {
     keypad?.each() { it.acknowledgeArmRequest(2) }
   }
   sendSHMEvent("stay")
   execRoutine("stay")
+  send(armMessage)
 }
