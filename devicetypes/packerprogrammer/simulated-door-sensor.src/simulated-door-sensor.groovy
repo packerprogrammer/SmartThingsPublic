@@ -15,7 +15,7 @@ metadata {
 	definition (name: "Simulated Door Sensor", namespace: "packerprogrammer", author: "Garrett Hensley") {
 		capability "Contact Sensor"
 		capability "Sensor"
-                capability "Actuator"
+        capability "Actuator"
         capability "Switch"    
         command "timing"
 		

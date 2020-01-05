@@ -56,6 +56,7 @@ def installed() {
 
 def parse(String description) {
 	def result = null
+    log.debug "raw: $description"
 	def cmd = zwave.parse(description, [0x20: 1, 0x70: 1])
 	if (cmd) {
 		result = createEvent(zwaveEvent(cmd))

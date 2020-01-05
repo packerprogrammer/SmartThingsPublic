@@ -26,7 +26,7 @@ import physicalgraph.zigbee.clusters.iaszone.ZoneStatus
 import physicalgraph.zigbee.zcl.DataType
 
 metadata {
-	definition(name: "Sensitive Garage Door", namespace: "packerprogrammer", author: "Garrett Hensley") {
+	definition(name: "Sensitive Garage Door Inverted", namespace: "packerprogrammer", author: "Garrett Hensley") {
 
 		capability "Three Axis"
 		capability "Battery"
@@ -312,13 +312,13 @@ List<Map> garageEvent(zValue) {
     def debounce = null
     
 	if (absValue > 900) {
-        log.debug 'closed'
-		contactValue = 'closed'
-		garageValue = 'garage-closed'
-	} else if (absValue < 800) {
-    log.debug 'open'
+        log.debug 'open'
 		contactValue = 'open'
 		garageValue = 'garage-open'
+	} else if (absValue < 800) {
+    log.debug 'closed'
+		contactValue = 'closed'
+		garageValue = 'garage-closed'
 	}
 	if (contactValue != null) {
 		def descriptionText = contactValue == 'open' ? '{{ device.displayName }} was opened' : '{{ device.displayName }} was closed'

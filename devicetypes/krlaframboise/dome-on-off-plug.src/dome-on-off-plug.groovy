@@ -636,7 +636,9 @@ private switchBinaryGetCmd() {
 }
 
 private switchBinarySetCmd(val) {
+	logDebug "Toggle Switch"
 	return zwave.switchBinaryV1.switchBinarySet(switchValue: val).format()
+    
 }
 
 private configGetCmd(paramNum) {
@@ -888,5 +890,5 @@ private logDebug(msg) {
 }
 
 private logTrace(msg) {
-	// log.trace "$msg"
+	log.trace "$msg"
 }
